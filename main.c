@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <malloc.h>
+#include <string.h>
+#include "myReadline.h"
 
 int main() {
 
@@ -57,7 +59,7 @@ int main() {
                         printf("-");
                     }
                 }
-                printf("\n");
+                printf("\n\n");
                 return 0;
 
             default:
