@@ -66,7 +66,7 @@ struct Polynomial* sumPolynom(struct Polynomial* polynom1, struct Polynomial* po
 
         resultPolynom->polynomialDegree = polynom1->polynomialDegree;
         resultPolynom->ringInfo = polynom1->ringInfo;
-        resultPolynom->coefficients = malloc(resultPolynom->ringInfo->size * resultPolynom->polynomialDegree);
+        resultPolynom->coefficients = malloc(resultPolynom->ringInfo->size * (resultPolynom->polynomialDegree + 1));
 
         for (int i = 0; i <= polynom2->polynomialDegree; i++) {
             resultPolynom->ringInfo->sum(polynom1->coefficients + i * resultPolynom->ringInfo->size, polynom2->coefficients + i * resultPolynom->ringInfo->size, resultPolynom->coefficients + i * resultPolynom->ringInfo->size);
@@ -82,7 +82,7 @@ struct Polynomial* sumPolynom(struct Polynomial* polynom1, struct Polynomial* po
 
         resultPolynom->polynomialDegree = polynom2->polynomialDegree;
         resultPolynom->ringInfo = polynom2->ringInfo;
-        resultPolynom->coefficients = malloc(resultPolynom->ringInfo->size * resultPolynom->polynomialDegree);
+        resultPolynom->coefficients = malloc(resultPolynom->ringInfo->size * (resultPolynom->polynomialDegree + 1));
 
 
         for (int i = 0; i <= polynom1->polynomialDegree; i++) {

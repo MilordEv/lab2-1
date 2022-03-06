@@ -4,9 +4,23 @@
 #include "myReadline.h"
 #include "Polynomial.h"
 
+struct RingInfo* ringInfoInt = NULL;
+
+
 int inputPolynomial(struct Polynomial** polynom, int* intOrFloat);
+void* sumInt(void* dig1, void* dig2, void* res);
 int mySum(struct Polynomial** polynom, int intOrFloat);
 int outputPolynomial(struct Polynomial* polynom, int intOrFloat);
+
+struct RingInfo* creareRingInfoInt() {
+    if(!ringInfoInt) {
+        int* elements = malloc(2 * sizeof(int));
+        elements[0] = 0;
+        elements[1] = 1;
+        ringInfoInt = create(sizeof(int), elements,  elements + 1, &sumInt);
+    }
+    return ringInfoInt;
+}
 
 
 int main() {
@@ -149,12 +163,13 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
 
         } while (inputText[0] != '\0');
 
-        int zero = 0;   
-        int one = 1;
+        //int zero = 0;   
+        //int one = 1;
 
-        struct RingInfo* ringInfoInt = create(sizeof(int), (void*) &zero, (void*) &one, &sumInt);
+        //struct RingInfo* ringInfoInt = create(sizeof(int), (void*) &zero, (void*) &one, &sumInt);
 
-        *polynom = fillingValues(ringInfoInt, polynomialDegree - 1, coefficients);
+
+        *polynom = fillingValues(creareRingInfoInt(), polynomialDegree - 1, coefficients);
 
         
     }
@@ -185,7 +200,7 @@ int mySum(struct Polynomial** polynom, int intOrFloat) {
     return 0;
 }
 
-int outputPolynomial(struct Polynomial* polynom, int intOrFloat) {
+int outputPolynomial(struct Polynomial* polynom, int intOrFloat) {  
 
     printf("P(x) = ");
 
