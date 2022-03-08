@@ -10,8 +10,8 @@ struct RingInfo* create(
 	void* zero,
 	void* one,
 	//void* (*minus)(void*),
-	void* (*sum)(void*, void*, void*)
-	/*void* (*mult)(void*, void*) */);
+	void* (*sum)(void*, void*, void*),
+	void* (*mult)(void*, void*, void*) );
 
 
 struct Polynomial;

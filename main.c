@@ -6,9 +6,10 @@
 
 struct RingInfo* ringInfoInt = NULL;
 
+void* sumInt(void* dig1, void* dig2, void* res);
+void* multInt(void* dig1, void* dig2, void* res);
 
 int inputPolynomial(struct Polynomial** polynom, int* intOrFloat);
-void* sumInt(void* dig1, void* dig2, void* res);
 int mySum(struct Polynomial** polynom, int intOrFloat);
 int outputPolynomial(struct Polynomial* polynom, int intOrFloat);
 
@@ -17,7 +18,7 @@ struct RingInfo* creareRingInfoInt() {
         int* elements = malloc(2 * sizeof(int));
         elements[0] = 0;
         elements[1] = 1;
-        ringInfoInt = create(sizeof(int), elements,  elements + 1, &sumInt);
+        ringInfoInt = create(sizeof(int), elements,  elements + 1, &sumInt, &multInt);
     }
     return ringInfoInt;
 }
@@ -102,10 +103,17 @@ int main() {
 void* sumInt(void* dig1, void* dig2, void* res) {
 
     int* digInt1 = (int*) dig1;
-    printf("\n\n%d\n\n", *digInt1);
     int* digInt2 = (int*) dig2;
     int* resInt = (int*) res;
     *resInt = *digInt1 + *digInt2;
+}
+
+void* multInt(void* dig1, void* dig2, void* res) {
+
+    int* digInt1 = (int*) dig1;
+    int* digInt2 = (int*) dig2;
+    int* resInt = (int*) res;
+    *resInt = *digInt1 * *digInt2;
 }
 
 int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
@@ -163,12 +171,6 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
 
         } while (inputText[0] != '\0');
 
-        //int zero = 0;   
-        //int one = 1;
-
-        //struct RingInfo* ringInfoInt = create(sizeof(int), (void*) &zero, (void*) &one, &sumInt);
-
-
         *polynom = fillingValues(creareRingInfoInt(), polynomialDegree - 1, coefficients);
 
         
@@ -193,9 +195,14 @@ int mySum(struct Polynomial** polynom, int intOrFloat) {
     }
 
     *polynom = sumPolynom(polynom1, polynom2);
-    freePolynomial(polynom1);
-    freePolynomial(polynom2);
 
+    if (!(*polynom)) {
+        *polynom = polynom1;
+        freePolynomial(polynom2);
+    } else {
+        freePolynomial(polynom1);
+        freePolynomial(polynom2);
+    }
 
     return 0;
 }
