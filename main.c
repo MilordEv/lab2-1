@@ -3,35 +3,21 @@
 #include <string.h>
 #include "myReadline.h"
 #include "Polynomial.h"
+#include "wrapper.h"
 
-struct RingInfo* ringInfoInt = NULL;
-
-void* sumInt(void* dig1, void* dig2, void* res);
-void* multInt(void* dig1, void* dig2, void* res);
-
-int inputPolynomial(struct Polynomial** polynom, int* intOrFloat);
+int inputPolynomial(struct Polynomial** polynom, int* intOrDouble);
 int mySum(struct Polynomial** polynom);
 int myMultScalar(struct Polynomial** polynom);
 int myMult(struct Polynomial** polynom);
-int myComputoringValue(struct Polynomial* polynom, int intOrFloat);
+int myComputoringValue(struct Polynomial* polynom, int intOrDouble);
 int myCompositionPolynomial(struct Polynomial** polynom);
-int outputPolynomial(struct Polynomial* polynom, int intOrFloat);
-
-struct RingInfo* creareRingInfoInt() {
-    if(!ringInfoInt) {
-        int* elements = malloc(2 * sizeof(int));
-        elements[0] = 0;
-        elements[1] = 1;
-        ringInfoInt = create(sizeof(int), elements,  elements + 1, &sumInt, &multInt);
-    }
-    return ringInfoInt;
-}
+int outputPolynomial(struct Polynomial* polynom, int intOrDouble);
 
 
 int main() {
 
     struct Polynomial* polynom = NULL;
-    int intOrFloat = 0;
+    int intOrDouble = 0;
 
     while(1) {
  
@@ -74,7 +60,7 @@ int main() {
  
         switch(number) {
             case 1:
-                inputPolynomial(&polynom, &intOrFloat);
+                inputPolynomial(&polynom, &intOrDouble);
                 break;
 
             case 2:
@@ -90,7 +76,7 @@ int main() {
                 break;
 
             case 5:
-                myComputoringValue(polynom, intOrFloat);
+                myComputoringValue(polynom, intOrDouble);
                 break;
 
             case 6:
@@ -98,7 +84,7 @@ int main() {
                 break;
 
             case 7:
-                outputPolynomial(polynom, intOrFloat);
+                outputPolynomial(polynom, intOrDouble);
                 break;
 
             case 0:
@@ -116,6 +102,14 @@ int main() {
                     freePolynomial(polynom);
                 }
 
+                if (intOrDouble == 1) {  
+                    freeRinginfo(creareRingInfoInt());
+                }
+
+                if (intOrDouble == 2) {  
+                    freeRinginfo(creareRingInfoDouble());
+                }
+
                 return 0;
 
             default:
@@ -125,23 +119,12 @@ int main() {
     }
 }
 
-void* sumInt(void* dig1, void* dig2, void* res) {
 
-    int* digInt1 = (int*) dig1;
-    int* digInt2 = (int*) dig2;
-    int* resInt = (int*) res;
-    *resInt = *digInt1 + *digInt2;
-}
+int inputPolynomial(struct Polynomial** polynom, int* intOrDouble) {
 
-void* multInt(void* dig1, void* dig2, void* res) {
-
-    int* digInt1 = (int*) dig1;
-    int* digInt2 = (int*) dig2;
-    int* resInt = (int*) res;
-    *resInt = *digInt1 * *digInt2;
-}
-
-int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
+    if (*polynom) {
+        freePolynomial(*polynom);
+    }
 
     printf("\nEnter:\n");
  
@@ -154,16 +137,16 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
     }
     printf("\nEnter the action number:");
 
-    *intOrFloat = 0;
+    *intOrDouble = 0;
     char *inputText = NULL;
 
-    while (*intOrFloat == 0) {
+    while (*intOrDouble == 0) {
 
         inputText = get_str();
 
         if (strlen(inputText) == 1 && ((inputText[0] == 49) || (inputText[0] == 50))) {
 
-            *intOrFloat = atoi(inputText);
+            *intOrDouble = atoi(inputText);
 
         }
 
@@ -171,7 +154,7 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
 
     free(inputText);
 
-    if (*intOrFloat == 1) {
+    if (*intOrDouble == 1) {
 
         printf("\n");
         printf("Enter the coefficients, in order to stop typing, enter only 'Enter' without the other characters:\n");
@@ -193,14 +176,40 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
                 coefficients[polynomialDegree - 1] = atoi(inputText);
             }
 
-
         } while (inputText[0] != '\0');
 
         free(inputText);
 
         *polynom = fillingValues(creareRingInfoInt(), polynomialDegree - 1, coefficients);
 
-        
+    } else if (*intOrDouble == 2) {
+
+        printf("\n");
+        printf("Enter the coefficients, in order to stop typing, enter only 'Enter' without the other characters:\n");
+
+        double* coefficients = malloc(0);
+        int polynomialDegree = 0;
+
+        char* inputText = NULL;
+
+        do {
+    
+            printf("coefficient for x^%d: ", polynomialDegree);
+            inputText = get_str(); 
+
+            if (atof(inputText) || inputText[0] == '0') {
+
+                polynomialDegree++;
+                coefficients = realloc(coefficients, polynomialDegree * sizeof(double));
+                coefficients[polynomialDegree - 1] = atof(inputText);
+            }
+
+        } while (inputText[0] != '\0');
+
+        free(inputText);
+
+        *polynom = fillingValues(creareRingInfoDouble(), polynomialDegree - 1, coefficients);
+
     }
 
     return 0;
@@ -209,10 +218,15 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
 
 int mySum(struct Polynomial** polynom) {
 
+    if (!polynom) {
+       printf("First enter the polynomial");
+       return -1;
+    }
+
     struct Polynomial* polynom1 = *polynom;
     struct Polynomial* polynom2 = NULL;
-    int intOrFloat2 = 0;
-    inputPolynomial(&polynom2, &intOrFloat2);
+    int intOrDouble2 = 0;
+    inputPolynomial(&polynom2, &intOrDouble2);
 
     *polynom = sumPolynomial(polynom1, polynom2);
 
@@ -228,6 +242,11 @@ int mySum(struct Polynomial** polynom) {
 }
 
 int myMultScalar(struct Polynomial** polynom) {
+
+    if (!polynom) {
+       printf("First enter the polynomial");
+       return -1;
+    }
     
     char *inputText = NULL;
 
@@ -249,10 +268,15 @@ int myMultScalar(struct Polynomial** polynom) {
 
 int myMult(struct Polynomial** polynom) {
 
+    if (!polynom) {
+       printf("First enter the polynomial");
+       return -1;
+    }
+
     struct Polynomial* polynom1 = *polynom;
     struct Polynomial* polynom2 = NULL;
-    int intOrFloat2 = 0;
-    inputPolynomial(&polynom2, &intOrFloat2);
+    int intOrDouble2 = 0;
+    inputPolynomial(&polynom2, &intOrDouble2);
 
     *polynom = multPolynomial(polynom1, polynom2);
 
@@ -267,7 +291,7 @@ int myMult(struct Polynomial** polynom) {
     return 0;
 }
 
-int myComputoringValue(struct Polynomial* polynom, int intOrFloat) {
+int myComputoringValue(struct Polynomial* polynom, int intOrDouble) {
 
     if (!polynom) {
         printf("First enter the polynomial");
@@ -276,34 +300,60 @@ int myComputoringValue(struct Polynomial* polynom, int intOrFloat) {
     
     char *inputText = NULL;
 
-    do {
+    if (intOrDouble == 1) {
 
-        printf("\nEnter the value of x:");
+        do {
 
-        inputText = get_str();
+            printf("\nEnter the value of x:");
 
-    } while (!(atoi(inputText) || (inputText[0] == '0' && strlen(inputText) == 1)));
+            inputText = get_str();
 
-    int value = atoi(inputText);
-    free(inputText);
+        } while (!(atoi(inputText) || (inputText[0] == '0' && strlen(inputText) == 1)));
 
-    void* result = computingValue(polynom, &value);
+        int value = atoi(inputText);
+        free(inputText);
 
-    if (intOrFloat == 1) {
+        void* result = computingValue(polynom, &value);
+
         printf("The value of polynomial: %d\n", *((int*) result));
-    }
 
-    free(result);
+        free(result);
+        
+    } else if (intOrDouble == 2) {
+
+        do {
+
+            printf("\nEnter the value of x:");
+
+            inputText = get_str();
+
+        } while (!(atof(inputText) || (inputText[0] == '0' && strlen(inputText) == 1)));
+
+        double value = atof(inputText);
+        free(inputText);
+
+        void* result = computingValue(polynom, &value);
+
+        printf("The value of polynomial: %lf\n", *((double*) result));
+
+        free(result);
+
+    }
 
     return 0;
 }
 
 int myCompositionPolynomial(struct Polynomial** polynom) {
 
+    if (!polynom) {
+        printf("First enter the polynomial");
+        return -1;
+    }
+
     struct Polynomial* polynom1 = *polynom;
     struct Polynomial* polynom2 = NULL;
-    int intOrFloat2 = 0;
-    inputPolynomial(&polynom2, &intOrFloat2);
+    int intOrDouble2 = 0;
+    inputPolynomial(&polynom2, &intOrDouble2);
 
     *polynom = compositionPolynomial(polynom1, polynom2);
 
@@ -319,13 +369,18 @@ int myCompositionPolynomial(struct Polynomial** polynom) {
 }
 
 
-int outputPolynomial(struct Polynomial* polynom, int intOrFloat) {  
+int outputPolynomial(struct Polynomial* polynom, int intOrDouble) {  
+
+    if (!polynom) {
+       printf("First enter the polynomial");
+       return -1;
+    }
 
     printf("P(x) = ");
 
     int specialCase = 0;
 
-    if (intOrFloat == 1) {
+    if (intOrDouble == 1) {
         
         for (int i = 0; i <= getDegree(polynom); i++) {
             int* coefficient = (int*) getCoefficient(polynom, i);
@@ -355,7 +410,37 @@ int outputPolynomial(struct Polynomial* polynom, int intOrFloat) {
             }
         }
 
-    } 
+    } else if (intOrDouble == 2) {
+
+        for (int i = 0; i <= getDegree(polynom); i++) {
+            double* coefficient = (double*) getCoefficient(polynom, i);
+
+            if (!(*coefficient)) {
+                continue;
+            }
+
+            if (i == 0) {
+                specialCase = 1;
+            }
+
+            if (i == 1 && specialCase && (*coefficient) > 0) {
+                printf("+");
+            }
+
+            if (i > 1 && (*coefficient) > 0) {
+                printf("+");
+            }
+
+            if ((*coefficient) == 1) {
+                printf(" x^%d ", i);
+            } else if ((*coefficient) == -1) {
+                printf(" -x^%d ", i);
+            } else {
+                printf(" %lfx^%d ", *coefficient, i);
+            }
+        }
+
+    }
 
     return 0;
 }

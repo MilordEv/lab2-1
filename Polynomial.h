@@ -9,7 +9,7 @@ struct RingInfo* create(
 	size_t size,
 	void* zero,
 	void* one,
-	//void* (*minus)(void*),
+	void* (*minus)(void*),
 	void* (*sum)(void*, void*, void*),
 	void* (*mult)(void*, void*, void*) );
 
@@ -31,5 +31,6 @@ struct Polynomial* compositionPolynomial(struct Polynomial* polynom1, struct Pol
 
 
 int freePolynomial(struct Polynomial* polynom);
+int freeRinginfo(struct RingInfo* ringinfo);
 
 #endif

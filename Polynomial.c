@@ -6,7 +6,7 @@ struct RingInfo {
     size_t size;
 	void* zero;
 	void* one;
-	//void* (*minus)(void*);
+	void* (*minus)(void*);
 	void* (*sum)(void*, void*, void*);
 	void* (*mult)(void*, void*, void*);
 };
@@ -15,7 +15,7 @@ struct RingInfo* create(
     size_t size,
     void* zero,
     void* one,
-    //void* (*minus)(void*),
+    void* (*minus)(void*),
     void* (*sum)(void*, void*, void*),
     void* (*mult)(void*, void*, void*) )
 {
@@ -23,7 +23,7 @@ struct RingInfo* create(
 	ringInfo->size = size;
 	ringInfo->zero = zero;
 	ringInfo->one = one;
-	//ringInfo->minus = minus;
+	ringInfo->minus = minus;
 	ringInfo->sum = sum;
 	ringInfo->mult = mult;
 
@@ -39,7 +39,15 @@ struct Polynomial {
     void* coefficients;
 };
 
+
+
+
+
 struct Polynomial* fillingValues(struct RingInfo* ringInfo, int polynomialDegree, void* coefficients) {
+
+    if (!ringInfo || polynomialDegree < 0 || !coefficients) {
+        return NULL;
+    }
 
     struct Polynomial* polynom = malloc(sizeof(struct Polynomial));
     polynom->ringInfo = ringInfo;
@@ -51,21 +59,35 @@ struct Polynomial* fillingValues(struct RingInfo* ringInfo, int polynomialDegree
 
 
 void* getCoefficient(struct Polynomial* polynom, int number) {
+
+    if (!polynom || number < 0) {
+        return NULL;
+    }
+
     return (polynom->coefficients + polynom->ringInfo->size * number);
 }
 
 int getDegree(struct Polynomial* polynom) {
+
+    if (!polynom) {
+        return -1;
+    }
+
     return polynom->polynomialDegree;
 }
 
 struct Polynomial* sumPolynomial(struct Polynomial* polynom1, struct Polynomial* polynom2) {
 
-    struct Polynomial* resultPolynom = malloc(sizeof(struct Polynomial));
+    if (!polynom1 || !polynom2) {
+        return NULL;
+    }
 
     if (polynom1->ringInfo->sum != polynom2->ringInfo->sum) {
 
         return NULL;
     }
+
+    struct Polynomial* resultPolynom = malloc(sizeof(struct Polynomial));
 
     if (polynom1->polynomialDegree >= polynom2->polynomialDegree) {
 
@@ -105,6 +127,10 @@ struct Polynomial* sumPolynomial(struct Polynomial* polynom1, struct Polynomial*
 
 struct Polynomial* multScalar(struct Polynomial* polynom, void* scalar) {
 
+    if (!polynom || !scalar) {
+        return NULL;
+    }
+
     for (int i = 0; i <= polynom->polynomialDegree; i++) {
         polynom->ringInfo->mult( polynom->coefficients + i * (polynom->ringInfo->size), scalar, polynom->coefficients + i * (polynom->ringInfo->size));
     }
@@ -113,6 +139,10 @@ struct Polynomial* multScalar(struct Polynomial* polynom, void* scalar) {
 }
 
 struct Polynomial* multPolynomial(struct Polynomial* polynom1, struct Polynomial* polynom2) {
+
+    if (!polynom1 || !polynom2) {
+        return NULL;
+    }
 
     if (polynom1->ringInfo->mult != polynom2->ringInfo->mult) {
         return NULL;
@@ -144,6 +174,11 @@ struct Polynomial* multPolynomial(struct Polynomial* polynom1, struct Polynomial
 }
 
 void* computingValue(struct Polynomial* polynom, void* value) {
+
+    if (!polynom || !value) {
+        return NULL;
+    }
+
     void* result = malloc(sizeof(polynom->ringInfo->size));
 
     polynom->ringInfo->sum(polynom->ringInfo->zero, polynom->ringInfo->zero, result);
@@ -166,6 +201,10 @@ void* computingValue(struct Polynomial* polynom, void* value) {
 }
 
 struct Polynomial* compositionPolynomial(struct Polynomial* polynom1, struct Polynomial* polynom2) {
+
+    if (!polynom1 || !polynom2) {
+        return NULL;
+    }
 
     if (polynom1->ringInfo->mult != polynom1->ringInfo->mult) {
         return NULL;
@@ -218,6 +257,18 @@ int freePolynomial(struct Polynomial* polynom) {
     if (!polynom) {
         free(polynom);
     }
+
+    return 0;
+}
+
+int freeRinginfo(struct RingInfo* ringinfo) {
+
+    if (!ringinfo) {
+        return -1;
+    }
+
+    free(ringinfo->zero);
+    free(ringinfo->one);
 
     return 0;
 }
