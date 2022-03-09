@@ -12,6 +12,9 @@ void* multInt(void* dig1, void* dig2, void* res);
 int inputPolynomial(struct Polynomial** polynom, int* intOrFloat);
 int mySum(struct Polynomial** polynom);
 int myMultScalar(struct Polynomial** polynom);
+int myMult(struct Polynomial** polynom);
+int myComputoringValue(struct Polynomial* polynom, int intOrFloat);
+int myCompositionPolynomial(struct Polynomial** polynom);
 int outputPolynomial(struct Polynomial* polynom, int intOrFloat);
 
 struct RingInfo* creareRingInfoInt() {
@@ -42,6 +45,9 @@ int main() {
         printf("1 to enter polynomial\n");
         printf("2 for summation of polynomials\n");
         printf("3 for multiplication by scalar\n");
+        printf("4 for multiplication of polynomials\n");
+        printf("5 for computoring the value\n");
+        printf("6 for composition of polynomials\n");
         printf("7 to displaying a polynomial\n");
         printf("0 to exit the program\n");
  
@@ -79,6 +85,18 @@ int main() {
                 myMultScalar(&polynom);
                 break;
 
+            case 4:
+                myMult(&polynom);
+                break;
+
+            case 5:
+                myComputoringValue(polynom, intOrFloat);
+                break;
+
+            case 6:
+                myCompositionPolynomial(&polynom);
+                break;
+
             case 7:
                 outputPolynomial(polynom, intOrFloat);
                 break;
@@ -93,6 +111,11 @@ int main() {
                     }
                 }
                 printf("\n\n");
+
+                if (!polynom) {
+                    freePolynomial(polynom);
+                }
+
                 return 0;
 
             default:
@@ -191,7 +214,7 @@ int mySum(struct Polynomial** polynom) {
     int intOrFloat2 = 0;
     inputPolynomial(&polynom2, &intOrFloat2);
 
-    *polynom = sumPolynom(polynom1, polynom2);
+    *polynom = sumPolynomial(polynom1, polynom2);
 
     if (!(*polynom)) {
         *polynom = polynom1;
@@ -224,9 +247,83 @@ int myMultScalar(struct Polynomial** polynom) {
     return 0;
 }
 
+int myMult(struct Polynomial** polynom) {
+
+    struct Polynomial* polynom1 = *polynom;
+    struct Polynomial* polynom2 = NULL;
+    int intOrFloat2 = 0;
+    inputPolynomial(&polynom2, &intOrFloat2);
+
+    *polynom = multPolynomial(polynom1, polynom2);
+
+    if (!(*polynom)) {
+        *polynom = polynom1;
+        freePolynomial(polynom2);
+    } else {
+        freePolynomial(polynom1);
+        freePolynomial(polynom2);
+    }
+
+    return 0;
+}
+
+int myComputoringValue(struct Polynomial* polynom, int intOrFloat) {
+
+    if (!polynom) {
+        printf("First enter the polynomial");
+        return -1;
+    }
+    
+    char *inputText = NULL;
+
+    do {
+
+        printf("\nEnter the value of x:");
+
+        inputText = get_str();
+
+    } while (!(atoi(inputText) || (inputText[0] == '0' && strlen(inputText) == 1)));
+
+    int value = atoi(inputText);
+    free(inputText);
+
+    void* result = computingValue(polynom, &value);
+
+    if (intOrFloat == 1) {
+        printf("The value of polynomial: %d\n", *((int*) result));
+    }
+
+    free(result);
+
+    return 0;
+}
+
+int myCompositionPolynomial(struct Polynomial** polynom) {
+
+    struct Polynomial* polynom1 = *polynom;
+    struct Polynomial* polynom2 = NULL;
+    int intOrFloat2 = 0;
+    inputPolynomial(&polynom2, &intOrFloat2);
+
+    *polynom = compositionPolynomial(polynom1, polynom2);
+
+    if (!(*polynom)) {
+        *polynom = polynom1;
+        freePolynomial(polynom2);
+    } else {
+        freePolynomial(polynom1);
+        freePolynomial(polynom2);
+    }
+
+    return 0;
+}
+
+
 int outputPolynomial(struct Polynomial* polynom, int intOrFloat) {  
 
     printf("P(x) = ");
+
+    int specialCase = 0;
 
     if (intOrFloat == 1) {
         
@@ -237,7 +334,15 @@ int outputPolynomial(struct Polynomial* polynom, int intOrFloat) {
                 continue;
             }
 
-            if (i > 0 && (*coefficient) > 0) {
+            if (i == 0) {
+                specialCase = 1;
+            }
+
+            if (i == 1 && specialCase && (*coefficient) > 0) {
+                printf("+");
+            }
+
+            if (i > 1 && (*coefficient) > 0) {
                 printf("+");
             }
 
