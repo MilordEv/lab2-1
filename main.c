@@ -10,7 +10,8 @@ void* sumInt(void* dig1, void* dig2, void* res);
 void* multInt(void* dig1, void* dig2, void* res);
 
 int inputPolynomial(struct Polynomial** polynom, int* intOrFloat);
-int mySum(struct Polynomial** polynom, int intOrFloat);
+int mySum(struct Polynomial** polynom);
+int myMultScalar(struct Polynomial** polynom);
 int outputPolynomial(struct Polynomial* polynom, int intOrFloat);
 
 struct RingInfo* creareRingInfoInt() {
@@ -40,7 +41,7 @@ int main() {
  
         printf("1 to enter polynomial\n");
         printf("2 for summation of polynomials\n");
-        //printf("3 to output data\n");
+        printf("3 for multiplication by scalar\n");
         printf("7 to displaying a polynomial\n");
         printf("0 to exit the program\n");
  
@@ -71,10 +72,11 @@ int main() {
                 break;
 
             case 2:
-                mySum(&polynom, intOrFloat);
+                mySum(&polynom);
                 break;
 
             case 3:
+                myMultScalar(&polynom);
                 break;
 
             case 7:
@@ -171,6 +173,8 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
 
         } while (inputText[0] != '\0');
 
+        free(inputText);
+
         *polynom = fillingValues(creareRingInfoInt(), polynomialDegree - 1, coefficients);
 
         
@@ -180,19 +184,12 @@ int inputPolynomial(struct Polynomial** polynom, int* intOrFloat) {
 
 }
 
-int mySum(struct Polynomial** polynom, int intOrFloat) {
+int mySum(struct Polynomial** polynom) {
 
     struct Polynomial* polynom1 = *polynom;
     struct Polynomial* polynom2 = NULL;
     int intOrFloat2 = 0;
     inputPolynomial(&polynom2, &intOrFloat2);
-
-    if(intOrFloat != intOrFloat2) {
-        printf("the coefficients must be of the same data type\n");
-        freePolynomial(polynom2);
-
-        return -1;
-    }
 
     *polynom = sumPolynom(polynom1, polynom2);
 
@@ -203,6 +200,26 @@ int mySum(struct Polynomial** polynom, int intOrFloat) {
         freePolynomial(polynom1);
         freePolynomial(polynom2);
     }
+
+    return 0;
+}
+
+int myMultScalar(struct Polynomial** polynom) {
+    
+    char *inputText = NULL;
+
+    do {
+
+        printf("\nEnter the scalar:");
+
+        inputText = get_str();
+
+    } while (!(atoi(inputText) || (inputText[0] == '0' && strlen(inputText) == 1)));
+
+    int scalar = atoi(inputText);
+    free(inputText);
+
+    *polynom = multScalar(*polynom, &scalar);
 
     return 0;
 }
@@ -236,5 +253,4 @@ int outputPolynomial(struct Polynomial* polynom, int intOrFloat) {
     } 
 
     return 0;
-
 }

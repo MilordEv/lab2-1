@@ -24,6 +24,7 @@ void* getCoefficient(struct Polynomial* polynom, int number);
 int getDegree(struct Polynomial* polynom);
 
 struct Polynomial* sumPolynom(struct Polynomial* polynom1, struct Polynomial* polynom2);
+struct Polynomial* multScalar(struct Polynomial* polynom, void* scalar);
 
 int freePolynomial(struct Polynomial* polynom);
 

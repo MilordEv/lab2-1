@@ -103,6 +103,14 @@ struct Polynomial* sumPolynom(struct Polynomial* polynom1, struct Polynomial* po
     return resultPolynom;
 }
 
+struct Polynomial* multScalar(struct Polynomial* polynom, void* scalar) {
+
+    for (int i = 0; i <= polynom->polynomialDegree; i++) {
+        polynom->ringInfo->mult( polynom->coefficients + i * (polynom->ringInfo->size), scalar, polynom->coefficients + i * (polynom->ringInfo->size));
+    }
+
+    return polynom;
+}
 
 
 
